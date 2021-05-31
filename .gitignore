@@ -130,3 +130,6 @@ dmypy.json
 
 .vscode
 secrets.py
+
+*.sqlite
+images/
