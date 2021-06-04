@@ -25,23 +25,24 @@ class TwitterWrapper():
         self.auth.set_access_token(self.access_token, self.access_secret)
         self.api = tweepy.API(self.auth)
 
-    def post_img(self):
-        # Post to Twitter
-        followers = self.api.followers()
-        print(f"followers: {followers}")
-
+    def post_img(self, post_title, file_name, img_src_link, file_dir = "./images"):
+        img_path = f"{file_dir}/{file_name}.jpg" 
+        img = self.api.media_upload(img_path)
+        tweet = f"'{post_title}' Source: {img_src_link} #liminal #liminalspaces"
+        self.api.update_status(status=tweet, media_ids=[img.media_id])
+        print("Image posted")
 
 if __name__ == "__main__":
-    print("Hello World")
     reddit = praw.Reddit(
         client_id=REDDIT_ID,
         client_secret=REDDIT_SECRET,
         user_agent=REDDIT_USER_AGENT
     )
-    posts = [post for post in reddit.subreddit("LiminalSpace").hot(limit=25)]
+    posts = [post for post in reddit.subreddit("LiminalSpace").hot(limit=100)]
     filtered_posts = [
         post for post in posts if post.url.startswith("https://i.")]
     post = random.choice(filtered_posts)
+    post_permalink = f"https://reddit.com{post.permalink}"
     file_loc = f"./{DIR}/temp.jpg"
     with open(file_loc, "wb") as f:
         f.write(requests.get(post.url).content)
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         if not exists:
             print("New image hash added")
             # File will be permanent so rename it
-            new_file_loc = f"./{DIR}/{post.title}.jpg"
+            new_file_loc = f"./{DIR}/{img_hash}.jpg"
             os.rename(file_loc, new_file_loc)
             s.add(img_record)
             s.commit()
@@ -72,4 +73,4 @@ if __name__ == "__main__":
         s.close()
 
     twit = TwitterWrapper()
-    twit.post_img()
+    twit.post_img(post.title, img_hash, post_permalink)
