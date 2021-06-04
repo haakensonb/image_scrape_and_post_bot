@@ -6,23 +6,41 @@ import random
 import imagehash
 from PIL import Image
 import os
-
+import tweepy
 from models.ImgRecord import ImgRecord
-from secrets import REDDIT_ID, REDDIT_SECRET, REDDIT_USER_AGENT
+from secrets import REDDIT_ID, REDDIT_SECRET, REDDIT_USER_AGENT, TWIT_KEY, TWIT_SECRET, TWIT_ACCESS_TOKEN, TWIT_ACCESS_SECRET
 
 DIR = "images"
 if not os.path.exists(DIR):
     os.makedirs(DIR)
 
+
+class TwitterWrapper():
+    def __init__(self, key=TWIT_KEY, secret=TWIT_SECRET, access_token=TWIT_ACCESS_TOKEN, access_secret=TWIT_ACCESS_SECRET):
+        self.key = key
+        self.secret = secret
+        self.access_token = access_token
+        self.access_secret = access_secret
+        self.auth = tweepy.OAuthHandler(self.key, self.secret)
+        self.auth.set_access_token(self.access_token, self.access_secret)
+        self.api = tweepy.API(self.auth)
+
+    def post_img(self):
+        # Post to Twitter
+        followers = self.api.followers()
+        print(f"followers: {followers}")
+
+
 if __name__ == "__main__":
     print("Hello World")
     reddit = praw.Reddit(
-        client_id = REDDIT_ID,
-        client_secret = REDDIT_SECRET,
-        user_agent = REDDIT_USER_AGENT
+        client_id=REDDIT_ID,
+        client_secret=REDDIT_SECRET,
+        user_agent=REDDIT_USER_AGENT
     )
     posts = [post for post in reddit.subreddit("LiminalSpace").hot(limit=25)]
-    filtered_posts = [post for post in posts if post.url.startswith("https://i.")]
+    filtered_posts = [
+        post for post in posts if post.url.startswith("https://i.")]
     post = random.choice(filtered_posts)
     file_loc = f"./{DIR}/temp.jpg"
     with open(file_loc, "wb") as f:
@@ -49,6 +67,9 @@ if __name__ == "__main__":
     except:
         s.rollback()
         raise
-    
+
     finally:
         s.close()
+
+    twit = TwitterWrapper()
+    twit.post_img()
