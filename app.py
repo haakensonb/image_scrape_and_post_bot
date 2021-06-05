@@ -48,7 +48,7 @@ if __name__ == "__main__":
         f.write(requests.get(post.url).content)
     img_hash = str(imagehash.phash(Image.open(file_loc)))
     print(f"image hash: {img_hash}")
-    img_record = ImgRecord(id=img_hash)
+    img_record = ImgRecord(id=img_hash, link=post_permalink)
     try:
         s = get_session()
         exists = s.query(ImgRecord.id).filter_by(id=img_hash).first()
