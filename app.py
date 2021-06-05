@@ -38,7 +38,7 @@ if __name__ == "__main__":
         client_secret=REDDIT_SECRET,
         user_agent=REDDIT_USER_AGENT
     )
-    posts = [post for post in reddit.subreddit("LiminalSpace").hot(limit=100)]
+    posts = [post for post in reddit.subreddit("LiminalSpace").hot(limit=30)]
     filtered_posts = [
         post for post in posts if post.url.startswith("https://i.")]
     post = random.choice(filtered_posts)
